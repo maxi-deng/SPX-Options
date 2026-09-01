@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "spx-market-data": {
+      "command": "C:\\Users\\dengm\\Capstone Project\\.venv\\Scripts\\python.exe",
+      "args": ["C:\\Users\\dengm\\Capstone Project\\mcp_servers\\market_data_server.py"]
+    },
+    "spx-portfolio": {
+      "command": "C:\\Users\\dengm\\Capstone Project\\.venv\\Scripts\\python.exe",
+      "args": ["C:\\Users\\dengm\\Capstone Project\\mcp_servers\\portfolio_server.py"]
+    }
+  }
+}

@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+# Excel lock files
+~$*.xlsx
+# rebuildable artifacts (rag/update and history --plot regenerate these)
+rag/index/
+data/portfolio/pnl_history.png
