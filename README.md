@@ -35,6 +35,12 @@ English, the graph runs the right agents, the answer generator replies.)
 Standalone agent CLIs still work via the venv python, e.g. the P&L chart:
 `.venv\Scripts\python.exe -m agents.portfolio_manager history --plot`.
 
+Portfolio maintenance: `exit-all` closes every open trade at market (also
+chat-reachable, e.g. "empty the portfolio" → `exit_all`; history and
+realized P&L preserved). `reset --confirm` archives the trade log to a
+timestamped file and starts a fresh empty one — **CLI-only by design**, so
+no chat phrasing can ever trigger it, and nothing is ever deleted.
+
 **MCP**: `.mcp.json` registers two servers for any MCP client (e.g. Claude
 Code opened in this folder): `spx-market-data` (current + historical ORATS
 chains) and `spx-portfolio` (analytics, P&L history, add/add-manual/exit —

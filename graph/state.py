@@ -80,8 +80,10 @@ TaskType = Literal["sentiment", "pick_trade", "portfolio_task"]
 # Standalone functions inside the sentiment retriever, chosen by the router:
 SentimentAction = Literal["analyze", "refresh_news"]
 
-# Standalone functions inside the portfolio manager, chosen by the router:
-PortfolioAction = Literal["add_trade", "exit_trade", "analytics"]
+# Standalone functions inside the portfolio manager, chosen by the router.
+# (Log reset/archive is deliberately NOT here — it is CLI-only with an
+# explicit --confirm flag, so no chat phrasing can ever trigger it.)
+PortfolioAction = Literal["add_trade", "exit_trade", "exit_all", "analytics"]
 
 
 class PortfolioState(TypedDict, total=False):

@@ -49,7 +49,7 @@ class RouteDecision(BaseModel):
         None, description="pick_trade only: ONLY the screening keys the user "
         "explicitly changed, omitting everything left at defaults")
     portfolio_action: Optional[
-        Literal["add_trade", "exit_trade", "analytics"]] = Field(
+        Literal["add_trade", "exit_trade", "exit_all", "analytics"]] = Field(
         None, description="Only for task_type=portfolio_task")
 
 
@@ -74,8 +74,10 @@ Task types:
   "at least 4% away" -> {{"min_strike_distance_pct": 4.0}};
   "top 5" -> {{"top_n": 5}}). Omit the field entirely if nothing changed.
 - portfolio_task: the paper portfolio — adding a trade (add_trade), exiting/
-  closing a trade (exit_trade), or viewing positions/P&L/greeks/analytics
-  (analytics).
+  closing one specific trade (exit_trade), closing ALL open trades / emptying
+  or flattening the whole portfolio (exit_all), or viewing positions/P&L/
+  greeks/analytics (analytics). Note: exit_all closes trades at market and
+  keeps all history; erasing/deleting the log itself is not available here.
 
 Query: {user_query}"""
 

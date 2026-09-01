@@ -17,6 +17,12 @@ CLI subcommand when run standalone):
                   config.MAX_PORTFOLIO_PAIRS (80)
   exit_trade  Close all OPEN legs of a trade_id at current (or historical,
               if a date is given) mid prices.
+  exit_all    Economic close of EVERY open trade at market prices — the
+              portfolio ends flat, all history and realized P&L preserved.
+
+CLI-only (never router-reachable, requires --confirm): `reset` archives the
+current trade log to a timestamped file and starts a fresh empty one.
+Nothing is ever deleted or rewritten — history moves to an archive.
   analytics   Positions, marks, unrealized/realized P&L, and position greeks
               from the trade log plus a fresh ORATS fetch.
 
@@ -311,6 +317,35 @@ def exit_trade(trade_id: str, close_date: str | None = None) -> PortfolioResult:
             "data": {"realized_pnl_usd": round(pnl, 0)}}
 
 
+def exit_all(close_date: str | None = None) -> PortfolioResult:
+    """Close every OPEN trade at current (or a past date's EOD) mid prices."""
+    open_ids = sorted({r["trade_id"] for r in _load_rows()
+                       if r["status"] == "OPEN"})
+    if not open_ids:
+        return {"kind": "trade_exited", "data": {},
+                "summary": "Nothing to close — the portfolio has no OPEN trades."}
+    results = [exit_trade(tid, close_date) for tid in open_ids]
+    total = sum(r["data"].get("realized_pnl_usd", 0) for r in results)
+    lines = "\n".join(f"- {r['summary']}" for r in results)
+    return {"kind": "trade_exited",
+            "summary": (f"Closed all {len(open_ids)} open trade(s); portfolio "
+                        f"is now flat. Total realized P&L ${total:,.0f}.\n{lines}"),
+            "data": {"closed_trade_ids": open_ids,
+                     "total_realized_pnl_usd": round(total, 0)}}
+
+
+def reset_log() -> str:
+    """Archive the trade log and start a fresh empty one (nothing deleted)."""
+    if not TRADE_LOG.exists():
+        return "No trade log exists — nothing to reset."
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    archive = TRADE_LOG.with_name(f"trade_log_archived_{stamp}.xlsx")
+    TRADE_LOG.rename(archive)
+    _ensure_log()
+    return (f"Trade log archived to {archive.name}; fresh empty log created. "
+            f"History is preserved in the archive.")
+
+
 def analytics() -> PortfolioResult:
     rows = _load_rows()
     if not rows:
@@ -468,6 +503,8 @@ def run(state: PortfolioState) -> dict:
                                        "summary": "REJECTED: no trade_id found in instruction."}
         else:
             result = add_trade(trade_id)
+    elif action == "exit_all":
+        result = exit_all()
     elif action == "exit_trade":
         if trade_id is None:
             result = {"kind": "trade_exited", "data": {},
@@ -500,6 +537,11 @@ def main() -> None:
     e = sub.add_parser("exit", help="close all OPEN legs of a trade")
     e.add_argument("trade_id")
     e.add_argument("--date", help="close date YYYY-MM-DD (prices at that EOD)")
+    ea = sub.add_parser("exit-all", help="close EVERY open trade at market")
+    ea.add_argument("--date", help="close date YYYY-MM-DD (prices at that EOD)")
+    rs = sub.add_parser("reset", help="archive the trade log, start fresh")
+    rs.add_argument("--confirm", action="store_true",
+                    help="required — this archives the current log")
     sub.add_parser("analytics", help="positions, P&L, portfolio greeks")
     h = sub.add_parser("history", help="daily P&L series since a date")
     h.add_argument("--start", help="YYYY-MM-DD (default: first open date)")
@@ -522,8 +564,18 @@ def main() -> None:
                 pass
         return
 
+    if args.cmd == "reset":
+        if not args.confirm:
+            print("Refused: reset archives the current trade log and starts "
+                  "fresh. Re-run with --confirm if you mean it.")
+            return
+        print(reset_log())
+        return
+
     if args.cmd == "add":
         result = add_trade(args.trade_id, args.date, args.note)
+    elif args.cmd == "exit-all":
+        result = exit_all(args.date)
     elif args.cmd == "add-manual":
         result = add_trade_manual(args.expiry, args.right, args.short,
                                   args.long, args.qty, args.date, args.note)
