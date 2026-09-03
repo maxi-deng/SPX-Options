@@ -7,4 +7,5 @@ venv/
 ~$*.xlsx
 # rebuildable artifacts (rag/update and history --plot regenerate these)
 rag/index/
+rag/corpus/calendar/
 data/portfolio/pnl_history.png
