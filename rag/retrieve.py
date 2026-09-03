@@ -16,6 +16,11 @@ def retrieve(query: str, k: int = 12, days: int | None = 7,
              topic: str | None = None, as_of: str | None = None) -> list[dict]:
     """Top-k relevant articles as dicts (title/topic/source/published/link).
 
+    Ranked by reciprocal rank fusion of semantic similarity and recency, so
+    a fresh headline can outrank an older one that merely phrases things
+    closer to the query — sentiment should track what's actually breaking,
+    not just literal wording match.
+
     as_of ("YYYY-MM-DD") reconstructs a past point in time: only articles
     published on or before that date count, and the recency window is
     measured back from it instead of from today.
@@ -35,15 +40,27 @@ def retrieve(query: str, k: int = 12, days: int | None = 7,
             return False  # article is from the future relative to as_of
         return not cutoff or pub >= cutoff
 
-    hits = store.similarity_search_with_score(query, k=k * 4)
+    # Overfetch well past k so recent-but-less-literally-similar headlines
+    # are in the pool to be re-ranked, not cut off by raw similarity alone.
+    hits = store.similarity_search_with_score(query, k=k * 20)
+    candidates = [(doc, score) for doc, score in hits if keep(doc.metadata)]
+
+    by_recency = sorted(range(len(candidates)),
+                        key=lambda i: candidates[i][0].metadata.get("published") or "",
+                        reverse=True)
+    recency_rank = {orig_i: rank for rank, orig_i in enumerate(by_recency)}
+    # candidates is already similarity-ranked (FAISS returns best-first), so
+    # its list position doubles as the similarity rank. RRF constant of 60
+    # is the standard default from the original rank-fusion literature.
+    fused = sorted(range(len(candidates)),
+                   key=lambda i: 1 / (60 + i) + 1 / (60 + recency_rank[i]),
+                   reverse=True)
+
     out = []
-    for doc, score in hits:
-        if not keep(doc.metadata):
-            continue
+    for i in fused[:k]:
+        doc, score = candidates[i]
         out.append({"title": doc.page_content, **doc.metadata,
                     "score": round(float(score), 4)})
-        if len(out) >= k:
-            break
     return out
 
 

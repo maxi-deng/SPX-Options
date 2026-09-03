@@ -17,8 +17,11 @@ RAG_CORPUS_DIR = PROJECT_ROOT / "rag" / "corpus"
 NEWS_DIR = RAG_CORPUS_DIR / "news"          # daily Google News pulls (JSONL)
 FAISS_INDEX_DIR = PROJECT_ROOT / "rag" / "index"
 
-# Key market event topics — each becomes a Google News RSS search feed,
-# pulled daily and tagged on every article. Edit freely; re-run
+# Key market event topics — each becomes a Google News RSS *search* feed
+# (keyword-matched), pulled daily and tagged on every article. These
+# guarantee coverage of themes we specifically care about, but a search feed
+# only surfaces articles matching its keywords — e.g. a one-off "ADP private
+# payrolls" release won't match any of these. Edit freely; re-run
 # `python -m rag.update` after changes.
 NEWS_TOPICS = [
     "Federal Reserve",
@@ -28,6 +31,13 @@ NEWS_TOPICS = [
     "US stock market",
     "SPX volatility",
 ]
+
+# Google's own algorithmically-curated Business section feed — not a keyword
+# search, so it catches whatever's actually moving US financial news day to
+# day (earnings, econ data releases, etc.) that the narrow topics above miss.
+GENERAL_NEWS_TOPIC = "US financial news"
+GENERAL_NEWS_FEED = ("https://news.google.com/rss/headlines/section/topic/"
+                      "BUSINESS?hl=en-US&gl=US&ceid=US:en")
 
 # fastembed model used for RAG embeddings (ONNX, local, no API key)
 EMBED_MODEL = "BAAI/bge-small-en-v1.5"
