@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-09-02T15:01:29",
+  "spot": 7681.35,
+  "objectives": {
+    "structures": [
+      "call spread"
+    ],
+    "strike_width": 100.0,
+    "contracts": 20,
+    "min_leg_open_interest": 500,
+    "min_premium_per_month": 8.0,
+    "min_days_to_expiry": 29,
+    "max_months_to_expiry": 0.955,
+    "min_strike_distance_pct": 3.0,
+    "optimize": "theta_delta_ratio",
+    "top_n": 20
+  },
+  "recommendations": []
+}

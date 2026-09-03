@@ -1,0 +1,401 @@
+{
+  "generated_at": "2026-09-02T11:38:42",
+  "spot": 7681.35,
+  "objectives": {
+    "structures": [
+      "call spread",
+      "put spread"
+    ],
+    "strike_width": 100.0,
+    "contracts": 20,
+    "min_leg_open_interest": 500,
+    "min_premium_per_month": 8.0,
+    "min_days_to_expiry": 14,
+    "max_months_to_expiry": 3,
+    "min_strike_distance_pct": 3.0,
+    "optimize": "theta_delta_ratio",
+    "top_n": 10
+  },
+  "recommendations": [
+    {
+      "trade_id": "SPX-CS-20260930-7950x8050",
+      "structure": "call spread",
+      "legs": [
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-30",
+          "strike": 7950.0,
+          "right": "C",
+          "action": "SELL",
+          "quantity": 20,
+          "price": 12.3
+        },
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-30",
+          "strike": 8050.0,
+          "right": "C",
+          "action": "BUY",
+          "quantity": 20,
+          "price": 4.2
+        }
+      ],
+      "net_premium": 8.1,
+      "premium_per_month": 8.5,
+      "metrics": {
+        "theta_delta_ratio": 5.21,
+        "net_theta_pts_per_day": 0.3679,
+        "net_delta": -0.0706,
+        "theta_usd_per_day_position": 736.0,
+        "credit_usd_position": 16200.0,
+        "short_leg_oi": 4800,
+        "long_leg_oi": 3194,
+        "dte": 29
+      },
+      "distance_from_spot_pct": 3.5,
+      "rationale": "Sell 20x 2026-09-30 7950C / buy 8050C for 8.10 pts credit ($16,200 on 20 contracts; 8.50 pts/month). Position theta +736 $/day vs net delta -0.071 -> theta/delta 5.2. Short strike +3.5% from spot."
+    },
+    {
+      "trade_id": "SPX-PS-20260918-7350x7250",
+      "structure": "put spread",
+      "legs": [
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-18",
+          "strike": 7350.0,
+          "right": "P",
+          "action": "SELL",
+          "quantity": 20,
+          "price": 15.2
+        },
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-18",
+          "strike": 7250.0,
+          "right": "P",
+          "action": "BUY",
+          "quantity": 20,
+          "price": 10.2
+        }
+      ],
+      "net_premium": 5.0,
+      "premium_per_month": 8.95,
+      "metrics": {
+        "theta_delta_ratio": 4.87,
+        "net_theta_pts_per_day": 0.1392,
+        "net_delta": 0.0286,
+        "theta_usd_per_day_position": 278.0,
+        "credit_usd_position": 10000.0,
+        "short_leg_oi": 958,
+        "long_leg_oi": 1491,
+        "dte": 17
+      },
+      "distance_from_spot_pct": 4.31,
+      "rationale": "Sell 20x 2026-09-18 7350P / buy 7250P for 5.00 pts credit ($10,000 on 20 contracts; 8.95 pts/month). Position theta +278 $/day vs net delta +0.029 -> theta/delta 4.9. Short strike +4.3% from spot."
+    },
+    {
+      "trade_id": "SPX-CS-20261002-7950x8050",
+      "structure": "call spread",
+      "legs": [
+        {
+          "underlying": "SPX",
+          "expiry": "2026-10-02",
+          "strike": 7950.0,
+          "right": "C",
+          "action": "SELL",
+          "quantity": 20,
+          "price": 15.9
+        },
+        {
+          "underlying": "SPX",
+          "expiry": "2026-10-02",
+          "strike": 8050.0,
+          "right": "C",
+          "action": "BUY",
+          "quantity": 20,
+          "price": 5.8
+        }
+      ],
+      "net_premium": 10.1,
+      "premium_per_month": 9.92,
+      "metrics": {
+        "theta_delta_ratio": 4.84,
+        "net_theta_pts_per_day": 0.3542,
+        "net_delta": -0.0732,
+        "theta_usd_per_day_position": 708.0,
+        "credit_usd_position": 20200.0,
+        "short_leg_oi": 1097,
+        "long_leg_oi": 585,
+        "dte": 31
+      },
+      "distance_from_spot_pct": 3.5,
+      "rationale": "Sell 20x 2026-10-02 7950C / buy 8050C for 10.10 pts credit ($20,200 on 20 contracts; 9.92 pts/month). Position theta +708 $/day vs net delta -0.073 -> theta/delta 4.8. Short strike +3.5% from spot."
+    },
+    {
+      "trade_id": "SPX-PS-20260918-7375x7275",
+      "structure": "put spread",
+      "legs": [
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-18",
+          "strike": 7375.0,
+          "right": "P",
+          "action": "SELL",
+          "quantity": 20,
+          "price": 16.95
+        },
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-18",
+          "strike": 7275.0,
+          "right": "P",
+          "action": "BUY",
+          "quantity": 20,
+          "price": 11.2
+        }
+      ],
+      "net_premium": 5.75,
+      "premium_per_month": 10.3,
+      "metrics": {
+        "theta_delta_ratio": 4.28,
+        "net_theta_pts_per_day": 0.1371,
+        "net_delta": 0.032,
+        "theta_usd_per_day_position": 274.0,
+        "credit_usd_position": 11500.0,
+        "short_leg_oi": 576,
+        "long_leg_oi": 734,
+        "dte": 17
+      },
+      "distance_from_spot_pct": 3.99,
+      "rationale": "Sell 20x 2026-09-18 7375P / buy 7275P for 5.75 pts credit ($11,500 on 20 contracts; 10.30 pts/month). Position theta +274 $/day vs net delta +0.032 -> theta/delta 4.3. Short strike +4.0% from spot."
+    },
+    {
+      "trade_id": "SPX-PS-20260918-7400x7300",
+      "structure": "put spread",
+      "legs": [
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-18",
+          "strike": 7400.0,
+          "right": "P",
+          "action": "SELL",
+          "quantity": 20,
+          "price": 18.9
+        },
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-18",
+          "strike": 7300.0,
+          "right": "P",
+          "action": "BUY",
+          "quantity": 20,
+          "price": 12.4
+        }
+      ],
+      "net_premium": 6.5,
+      "premium_per_month": 11.64,
+      "metrics": {
+        "theta_delta_ratio": 4.11,
+        "net_theta_pts_per_day": 0.1499,
+        "net_delta": 0.0365,
+        "theta_usd_per_day_position": 300.0,
+        "credit_usd_position": 13000.0,
+        "short_leg_oi": 2414,
+        "long_leg_oi": 2553,
+        "dte": 17
+      },
+      "distance_from_spot_pct": 3.66,
+      "rationale": "Sell 20x 2026-09-18 7400P / buy 7300P for 6.50 pts credit ($13,000 on 20 contracts; 11.64 pts/month). Position theta +300 $/day vs net delta +0.036 -> theta/delta 4.1. Short strike +3.7% from spot."
+    },
+    {
+      "trade_id": "SPX-PS-20260925-7350x7250",
+      "structure": "put spread",
+      "legs": [
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-25",
+          "strike": 7350.0,
+          "right": "P",
+          "action": "SELL",
+          "quantity": 20,
+          "price": 23.9
+        },
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-25",
+          "strike": 7250.0,
+          "right": "P",
+          "action": "BUY",
+          "quantity": 20,
+          "price": 17.0
+        }
+      ],
+      "net_premium": 6.9,
+      "premium_per_month": 8.75,
+      "metrics": {
+        "theta_delta_ratio": 3.99,
+        "net_theta_pts_per_day": 0.1386,
+        "net_delta": 0.0347,
+        "theta_usd_per_day_position": 277.0,
+        "credit_usd_position": 13800.0,
+        "short_leg_oi": 639,
+        "long_leg_oi": 1394,
+        "dte": 24
+      },
+      "distance_from_spot_pct": 4.31,
+      "rationale": "Sell 20x 2026-09-25 7350P / buy 7250P for 6.90 pts credit ($13,800 on 20 contracts; 8.75 pts/month). Position theta +277 $/day vs net delta +0.035 -> theta/delta 4.0. Short strike +4.3% from spot."
+    },
+    {
+      "trade_id": "SPX-PS-20260918-7425x7325",
+      "structure": "put spread",
+      "legs": [
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-18",
+          "strike": 7425.0,
+          "right": "P",
+          "action": "SELL",
+          "quantity": 20,
+          "price": 21.2
+        },
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-18",
+          "strike": 7325.0,
+          "right": "P",
+          "action": "BUY",
+          "quantity": 20,
+          "price": 13.7
+        }
+      ],
+      "net_premium": 7.5,
+      "premium_per_month": 13.43,
+      "metrics": {
+        "theta_delta_ratio": 3.89,
+        "net_theta_pts_per_day": 0.1647,
+        "net_delta": 0.0423,
+        "theta_usd_per_day_position": 329.0,
+        "credit_usd_position": 15000.0,
+        "short_leg_oi": 658,
+        "long_leg_oi": 524,
+        "dte": 17
+      },
+      "distance_from_spot_pct": 3.34,
+      "rationale": "Sell 20x 2026-09-18 7425P / buy 7325P for 7.50 pts credit ($15,000 on 20 contracts; 13.43 pts/month). Position theta +329 $/day vs net delta +0.042 -> theta/delta 3.9. Short strike +3.3% from spot."
+    },
+    {
+      "trade_id": "SPX-PS-20260918-7450x7350",
+      "structure": "put spread",
+      "legs": [
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-18",
+          "strike": 7450.0,
+          "right": "P",
+          "action": "SELL",
+          "quantity": 20,
+          "price": 23.8
+        },
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-18",
+          "strike": 7350.0,
+          "right": "P",
+          "action": "BUY",
+          "quantity": 20,
+          "price": 15.2
+        }
+      ],
+      "net_premium": 8.6,
+      "premium_per_month": 15.4,
+      "metrics": {
+        "theta_delta_ratio": 3.81,
+        "net_theta_pts_per_day": 0.19,
+        "net_delta": 0.0499,
+        "theta_usd_per_day_position": 380.0,
+        "credit_usd_position": 17200.0,
+        "short_leg_oi": 1961,
+        "long_leg_oi": 958,
+        "dte": 17
+      },
+      "distance_from_spot_pct": 3.01,
+      "rationale": "Sell 20x 2026-09-18 7450P / buy 7350P for 8.60 pts credit ($17,200 on 20 contracts; 15.40 pts/month). Position theta +380 $/day vs net delta +0.050 -> theta/delta 3.8. Short strike +3.0% from spot."
+    },
+    {
+      "trade_id": "SPX-PS-20260925-7375x7275",
+      "structure": "put spread",
+      "legs": [
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-25",
+          "strike": 7375.0,
+          "right": "P",
+          "action": "SELL",
+          "quantity": 20,
+          "price": 26.25
+        },
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-25",
+          "strike": 7275.0,
+          "right": "P",
+          "action": "BUY",
+          "quantity": 20,
+          "price": 18.45
+        }
+      ],
+      "net_premium": 7.8,
+      "premium_per_month": 9.89,
+      "metrics": {
+        "theta_delta_ratio": 3.72,
+        "net_theta_pts_per_day": 0.1449,
+        "net_delta": 0.0389,
+        "theta_usd_per_day_position": 290.0,
+        "credit_usd_position": 15600.0,
+        "short_leg_oi": 1078,
+        "long_leg_oi": 721,
+        "dte": 24
+      },
+      "distance_from_spot_pct": 3.99,
+      "rationale": "Sell 20x 2026-09-25 7375P / buy 7275P for 7.80 pts credit ($15,600 on 20 contracts; 9.89 pts/month). Position theta +290 $/day vs net delta +0.039 -> theta/delta 3.7. Short strike +4.0% from spot."
+    },
+    {
+      "trade_id": "SPX-PS-20260925-7400x7300",
+      "structure": "put spread",
+      "legs": [
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-25",
+          "strike": 7400.0,
+          "right": "P",
+          "action": "SELL",
+          "quantity": 20,
+          "price": 28.8
+        },
+        {
+          "underlying": "SPX",
+          "expiry": "2026-09-25",
+          "strike": 7300.0,
+          "right": "P",
+          "action": "BUY",
+          "quantity": 20,
+          "price": 20.1
+        }
+      ],
+      "net_premium": 8.7,
+      "premium_per_month": 11.03,
+      "metrics": {
+        "theta_delta_ratio": 3.53,
+        "net_theta_pts_per_day": 0.1549,
+        "net_delta": 0.0439,
+        "theta_usd_per_day_position": 310.0,
+        "credit_usd_position": 17400.0,
+        "short_leg_oi": 1740,
+        "long_leg_oi": 1596,
+        "dte": 24
+      },
+      "distance_from_spot_pct": 3.66,
+      "rationale": "Sell 20x 2026-09-25 7400P / buy 7300P for 8.70 pts credit ($17,400 on 20 contracts; 11.03 pts/month). Position theta +310 $/day vs net delta +0.044 -> theta/delta 3.5. Short strike +3.7% from spot."
+    }
+  ]
+}
