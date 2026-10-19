@@ -69,11 +69,11 @@ MAX_PORTFOLIO_PAIRS = 80
 DEFAULT_TRADE_OBJECTIVES = {
     "structures": ["call spread", "put spread"],  # credit spreads, both sides
     "strike_width": 100.0,          # exact distance between the two legs
-    "contracts": 20,                # per trade
+    "contracts": 10,                # per trade
     "min_leg_open_interest": 500,   # each leg must EXCEED this
-    "min_premium_per_month": 8.0,   # upfront credit received per PAIR at open,
+    "min_premium_per_month": 5.0,   # upfront credit received per PAIR at open,
                                     # in quoted price terms ("dollars" = SPX
-                                    # points, i.e. $800 cash per pair), per
+                                    # points, i.e. $500 cash per pair), per
                                     # 30.44-day month; must EXCEED this
     "min_days_to_expiry": 14,       # 2 weeks — filters out super short-dated
     "max_months_to_expiry": 3,

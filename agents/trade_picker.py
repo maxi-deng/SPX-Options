@@ -5,10 +5,10 @@ near leg, buy the leg exactly `strike_width` further out) against the user's
 standing objectives (config.DEFAULT_TRADE_OBJECTIVES, overridable per query):
 
   - strike difference exactly 100
-  - 20 contracts per trade
+  - 10 contracts per trade
   - each leg's open interest > 500
-  - upfront credit per pair, per 30.44-day month, > 8 in quoted price terms
-    (8 SPX points = $800 cash per pair)
+  - upfront credit per pair, per 30.44-day month, > 5 in quoted price terms
+    (5 SPX points = $500 cash per pair)
   - expiries between 2 weeks and 3 months
   - both legs' strikes at least 3% away from spot (OTM direction)
   - rank by highest theta/delta ratio of the net position
@@ -270,8 +270,9 @@ def _fmt(value: float | None, spec: str, width: int) -> str:
 def table_str(recs: list[TradeRecommendation]) -> str:
     if not recs:
         return "No trades passed the filters."
+    contracts = recs[0]["legs"][0]["quantity"]
     hdr = (f"{'trade_id':<28} {'dte':>4} {'credit':>7} {'pts/mo':>7} "
-           f"{'cred$(20x)':>11} {'theta$/d':>9} {'delta':>8} {'delta$':>9} "
+           f"{f'cred$({contracts}x)':>11} {'theta$/d':>9} {'delta':>8} {'delta$':>9} "
            f"{'gamma$':>8} {'t/d':>7} {'th$rank':>9} {'be_pts':>7} "
            f"{'dist%':>6} {'sd':>5} {'OI s/l':>12}")
     lines = [hdr, "-" * len(hdr)]
