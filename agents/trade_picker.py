@@ -20,6 +20,18 @@ negative for long options. For a credit spread (short near + long far):
     net_delta = delta(far) - delta(near)   -> small; sign shows direction
 Position dollars = points x 100 multiplier x contracts.
 
+Informational columns (shown and stored, never used to select or rank):
+  - gamma$: net gamma x multiplier x contracts = $ change in position delta
+    per 1 SPX point (negative for a credit spread: short near-strike gamma
+    outweighs the long wing).
+  - be_pts: break-even daily move = sqrt(2 * net theta / |net gamma|) in SPX
+    points -- the one-day move at which the gamma loss equals the theta
+    collected (ignores delta and vega). Roughly the implied one-day move
+    scaled down by the skew between the two legs.
+  - sd: short strike's distance from spot in implied standard deviations,
+    |K - S| / (S * IV * sqrt(T)), using the short leg's own OTM-side mid IV.
+    ORATS dte counts today as day 1, so T = (dte - 1) / 365 (floored).
+
 Persists every recommendation set to data/recommendations/ so a later,
 separate add_trade query can reference a trade_id — there is no in-graph
 handoff to the portfolio manager.
@@ -31,6 +43,7 @@ Standalone run:  python -m agents.trade_picker   (from the project root)
 """
 
 import json
+import math
 from datetime import datetime
 
 from config import DEFAULT_TRADE_OBJECTIVES, RECOMMENDATIONS_DIR
@@ -43,7 +56,8 @@ CONTRACT_MULTIPLIER = 100  # SPX options are $100 per point
 CHAIN_FIELDS = [
     "expirDate", "dte", "strike", "stockPrice",
     "callBidPrice", "callAskPrice", "putBidPrice", "putAskPrice",
-    "callOpenInterest", "putOpenInterest", "delta", "theta",
+    "callOpenInterest", "putOpenInterest", "delta", "theta", "gamma",
+    "callMidIv", "putMidIv",
 ]
 
 
@@ -60,13 +74,38 @@ def _leg_view(row: dict, side: str) -> dict | None:
         mid = _mid(row["callBidPrice"], row["callAskPrice"])
         oi = row["callOpenInterest"]
         delta = row["delta"]
+        iv = row.get("callMidIv")
     else:
         mid = _mid(row["putBidPrice"], row["putAskPrice"])
         oi = row["putOpenInterest"]
         delta = row["delta"] - 1  # put delta from the shared call delta
+        iv = row.get("putMidIv")
     if mid is None:
         return None
-    return {"mid": mid, "oi": oi, "delta": delta, "theta": row["theta"]}
+    # gamma is shared by the call and put at a strike; iv is the OTM-side mid IV
+    return {"mid": mid, "oi": oi, "delta": delta, "theta": row["theta"],
+            "gamma": row.get("gamma"), "iv": iv}
+
+
+def _breakeven_move(net_theta: float, net_gamma: float | None) -> float | None:
+    """Daily SPX move (points) where the gamma loss equals one day's theta.
+
+    From P&L ~ theta + 0.5 * gamma * dS^2 = 0. None when gamma is missing or
+    not negative (zero-greek artifacts), where the ratio is meaningless.
+    """
+    if net_gamma is None or net_gamma >= 0 or net_theta <= 0:
+        return None
+    return math.sqrt(2 * net_theta / -net_gamma)
+
+
+def _strike_sd(spot: float, strike: float, iv: float | None, dte: int) -> float | None:
+    """Distance from spot to `strike` in implied standard deviations of SPX
+    over the time left. ORATS dte counts today as day 1, so calendar time is
+    roughly dte - 1 days (floored so a 1-day expiry does not divide by zero)."""
+    if not iv or iv <= 0:
+        return None
+    years = max(dte - 1, 0.5) / 365
+    return abs(strike - spot) / (spot * iv * math.sqrt(years))
 
 
 def pick_trades(objectives: dict | None = None) -> list[TradeRecommendation]:
@@ -121,16 +160,27 @@ def pick_trades(objectives: dict | None = None) -> list[TradeRecommendation]:
                 if net_theta <= 0:
                     continue  # not a decay-collecting position; also drops stale zero-greek rows
                 ratio = net_theta / max(abs(net_delta), 1e-3)
+                net_gamma = (far["gamma"] - near["gamma"]
+                             if near["gamma"] is not None and far["gamma"] is not None
+                             else None)
                 candidates.append({
                     "structure": structure, "side": side, "exp": exp, "dte": dte,
                     "short_k": k, "long_k": k + far_offset,
                     "near": near, "far": far, "credit": credit,
                     "premium_per_month": premium_per_month,
                     "net_theta": net_theta, "net_delta": net_delta,
+                    "net_gamma": net_gamma,
+                    "breakeven_move": _breakeven_move(net_theta, net_gamma),
+                    "short_sd": _strike_sd(spot, k, near["iv"], dte),
                     "ratio": ratio, "distance_pct": dist_near,
                 })
 
     candidates.sort(key=lambda c: c["ratio"], reverse=True)
+    # Theta/delta ratio still drives which trades get selected (top_n below) --
+    # this is a second, informational ranking by raw theta$/day alone, so a
+    # trade's standing on absolute decay is visible alongside its ratio rank.
+    theta_rank = {id(c): i + 1 for i, c in enumerate(
+        sorted(candidates, key=lambda c: c["net_theta"], reverse=True))}
 
     recs: list[TradeRecommendation] = []
     for c in candidates[: obj["top_n"]]:
@@ -158,7 +208,18 @@ def pick_trades(objectives: dict | None = None) -> list[TradeRecommendation]:
                 "theta_delta_ratio": round(c["ratio"], 2),
                 "net_theta_pts_per_day": round(c["net_theta"], 4),
                 "net_delta": round(c["net_delta"], 4),
+                "delta_usd_position": round(c["net_delta"] * position_scale, 0),
+                "net_gamma": (round(c["net_gamma"], 6)
+                              if c["net_gamma"] is not None else None),
+                "gamma_usd_position": (round(c["net_gamma"] * position_scale, 2)
+                                       if c["net_gamma"] is not None else None),
+                "breakeven_move_pts": (round(c["breakeven_move"], 1)
+                                       if c["breakeven_move"] is not None else None),
+                "short_strike_sd": (round(c["short_sd"], 2)
+                                    if c["short_sd"] is not None else None),
                 "theta_usd_per_day_position": round(c["net_theta"] * position_scale, 0),
+                "theta_usd_rank": theta_rank[id(c)],
+                "candidates_considered": len(candidates),
                 "credit_usd_position": round(c["credit"] * position_scale, 0),
                 "short_leg_oi": c["near"]["oi"],
                 "long_leg_oi": c["far"]["oi"],
@@ -201,20 +262,32 @@ def run(state: PortfolioState) -> dict:
     return {"trade_recommendations": recs}
 
 
+def _fmt(value: float | None, spec: str, width: int) -> str:
+    """Right-aligned number, or 'n/a' when the metric could not be computed."""
+    return f"{'n/a':>{width}}" if value is None else f"{value:>{width}{spec}}"
+
+
 def table_str(recs: list[TradeRecommendation]) -> str:
     if not recs:
         return "No trades passed the filters."
     hdr = (f"{'trade_id':<28} {'dte':>4} {'credit':>7} {'pts/mo':>7} "
-           f"{'cred$(20x)':>11} {'theta$/d':>9} {'delta':>8} {'t/d':>7} "
-           f"{'dist%':>6} {'OI s/l':>12}")
+           f"{'cred$(20x)':>11} {'theta$/d':>9} {'delta':>8} {'delta$':>9} "
+           f"{'gamma$':>8} {'t/d':>7} {'th$rank':>9} {'be_pts':>7} "
+           f"{'dist%':>6} {'sd':>5} {'OI s/l':>12}")
     lines = [hdr, "-" * len(hdr)]
     for r in recs:
         m = r["metrics"]
+        th_rank = f"{m['theta_usd_rank']}/{m['candidates_considered']}"
         lines.append(
             f"{r['trade_id']:<28} {m['dte']:>4} {r['net_premium']:>7.2f} "
             f"{r['premium_per_month']:>7.2f} {m['credit_usd_position']:>11,.0f} "
             f"{m['theta_usd_per_day_position']:>9,.0f} {m['net_delta']:>8.3f} "
-            f"{m['theta_delta_ratio']:>7.2f} {r['distance_from_spot_pct']:>6.1f} "
+            f"{m['delta_usd_position']:>9,.0f} "
+            f"{_fmt(m['gamma_usd_position'], '.2f', 8)} "
+            f"{m['theta_delta_ratio']:>7.2f} {th_rank:>9} "
+            f"{_fmt(m['breakeven_move_pts'], '.1f', 7)} "
+            f"{r['distance_from_spot_pct']:>6.1f} "
+            f"{_fmt(m['short_strike_sd'], '.2f', 5)} "
             f"{m['short_leg_oi']:>5}/{m['long_leg_oi']:<6}")
     return "\n".join(lines)
 

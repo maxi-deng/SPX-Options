@@ -28,7 +28,7 @@ class TradeRecommendation(TypedDict):
     legs: list[TradeLeg]
     net_premium: float               # net premium for the structure
     premium_per_month: float         # normalized for objectives like "min $10/month"
-    metrics: dict[str, float]        # e.g. {"theta": ..., "delta": ..., "theta_delta_ratio": ...}
+    metrics: dict[str, Optional[float]]  # e.g. {"theta": ..., "delta": ..., "theta_delta_ratio": ...}; None = not computable
     distance_from_spot_pct: float    # e.g. 2.3 means nearest short strike is 2.3% away
     rationale: str
 
